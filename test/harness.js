@@ -75,7 +75,7 @@ function load(opts) {
   global.removeEventListener = () => {};
   global.AudioContext = undefined;
 
-  const files = ['ysdk.js', 'i18n.js', 'save.js', 'audio.js', 'fx.js', 'input.js',
+  const files = ['tgsdk.js', 'i18n.js', 'save.js', 'audio.js', 'fx.js', 'input.js',
     'weapons.js', 'flies.js', 'ui.js', 'game.js'];
   for (const f of files) {
     const src = fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8');

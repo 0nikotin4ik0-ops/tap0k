@@ -12,10 +12,11 @@
 <body>
 <canvas id="game"></canvas>
 
-<!-- SDK Яндекс Игр: обязателен по п. 1.1 требований -->
-<script src="https://yandex.ru/games/sdk/v2"></script>
-
-<script src="js/ysdk.js"></script>
+<!-- SDK Telegram Mini Apps: клиент инъекит window.Telegram.GameDev (weak SDK:
+     рекламы) и window.Telegram.AppInfo сам, когда играть как Instant Game, —
+     no CDN script tag needed. If your game needs an explicit loader, add
+     <script src="...game-sdk.js"> here and set TG_SDK_URL in js/tgsdk.js. -->
+<script src="js/tgsdk.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/save.js"></script>
 <script src="js/audio.js"></script>

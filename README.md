@@ -51,9 +51,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
 ## Структура
 
 ```
-index.html      точка входа + подключение SDK Яндекс Игр
+index.html      точка входа + подключение SDK Telegram Mini Apps
 css/style.css   фуллскрин-канвас, запрет скролла и выделения
-js/ysdk.js      обёртка SDK: init, LoadingAPI.ready, GameplayAPI, реклама, авторизация, облако
+js/tgsdk.js     обёртка SDK: init, ready, gameplay-таймер, реклама, авторизация, облако
 js/i18n.js      строки ru/en, язык определяется через SDK
 js/save.js      прогресс: монеты, рекорды, оружие, улучшения, достижения, ежедневный бонус
 js/audio.js     все звуки синтезируются WebAudio, ни одного файла-ассета
