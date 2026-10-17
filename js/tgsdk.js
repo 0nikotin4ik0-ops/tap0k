@@ -12,6 +12,8 @@
 (function () {
   'use strict';
 
+  var ADSGRAM_REWARD_BLOCK_ID = "54516";
+
   var RU_LANGS = ['ru', 'be', 'uk', 'kk', 'uz', 'az', 'ky', 'tg', 'hy', 'ka', 'mo'];
 
   /* Optional explicit SDK loader. Empty = rely on the client injection.
@@ -69,6 +71,19 @@
       /* In a Mini App the user is already authenticated by Telegram. */
       self.player = self._identity();
       if (!self.player) self.player = { id: '', name: '' };
+
+      if (window.Adsgram && ADSGRAM_REWARD_BLOCK_ID) {
+        try {
+          self.adController = window.Adsgram.init({
+            blockId: ADSGRAM_REWARD_BLOCK_ID,
+            // debug: true // Раскомментируйте для тестов
+          });
+          console.log("[AdsGram] Инициализирован");
+        } catch (e) {
+          console.warn("[AdsGram] Ошибка инициализации", e);
+        }
+      }
+
       return Promise.resolve(true);
     },
 
@@ -190,12 +205,35 @@
       });
     },
 
-    /* Rewarded ad. Resolves true when the reward may be given (п. 4.5). */
+        /* Rewarded ad. Resolves true when the reward may be given (п. 4.5). */
     showRewarded: function () {
       var self = this;
       return new Promise(function (resolve) {
+        
+        // 1. ПЫТАЕМСЯ ПОКАЗАТЬ РЕКЛАМУ ЧЕРЕЗ ADSGRAM
+        if (self.adController) {
+          self.adController.show()
+            .then(function (result) {
+              // result.done === true, если пользователь досмотрел
+              if (result && result.done) {
+                console.log("[AdsGram] Награда получена");
+                resolve(true);
+              } else {
+                console.log("[AdsGram] Реклама закрыта раньше времени");
+                resolve(false);
+              }
+            })
+            .catch(function (err) {
+              console.warn("[AdsGram] Ошибка показа рекламы:", err);
+              resolve(false);
+            });
+          return;
+        }
+
+        // 2. ФОЛЛБЭК НА НАТИВНЫЙ SDK TELEGRAM (если AdsGram не подключен)
         var f = self._weak(['showRewardedAd', 'showRewardedVideo']);
         if (!f) return resolve(false);
+        
         var settled = false;
         function finish(v) {
           if (!settled) {
