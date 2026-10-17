@@ -1,0 +1,7 @@
+/dist/
+/docs/
+/promo/
+/test/
+/tools/
+*.ps1
+*.md
