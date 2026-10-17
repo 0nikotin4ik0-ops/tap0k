@@ -45,6 +45,23 @@
         forceLocal = new URLSearchParams(location.search).get('local') === '1';
       } catch (e) {}
 
+      /* AdsGram ships as its own script (index.html loads sad.min.js) and has
+         nothing to do with window.Telegram.GameDev, so it must be initialized
+         BEFORE the GameDev check below: a plain Mini App gets no GameDev
+         injected, and without this the ad controller never exists and every
+         rewarded tap falls through to the "no ad" branch. */
+      if (!forceLocal && window.Adsgram && ADSGRAM_REWARD_BLOCK_ID) {
+        try {
+          self.adController = window.Adsgram.init({
+            blockId: ADSGRAM_REWARD_BLOCK_ID,
+            // debug: true // Раскомментируйте для тестов
+          });
+          console.log("[AdsGram] Инициализирован");
+        } catch (e) {
+          console.warn("[AdsGram] Ошибка инициализации", e);
+        }
+      }
+
       var gd = null;
       try {
         if (window.Telegram && window.Telegram.GameDev) gd = window.Telegram.GameDev;
@@ -71,18 +88,6 @@
       /* In a Mini App the user is already authenticated by Telegram. */
       self.player = self._identity();
       if (!self.player) self.player = { id: '', name: '' };
-
-      if (window.Adsgram && ADSGRAM_REWARD_BLOCK_ID) {
-        try {
-          self.adController = window.Adsgram.init({
-            blockId: ADSGRAM_REWARD_BLOCK_ID,
-            // debug: true // Раскомментируйте для тестов
-          });
-          console.log("[AdsGram] Инициализирован");
-        } catch (e) {
-          console.warn("[AdsGram] Ошибка инициализации", e);
-        }
-      }
 
       return Promise.resolve(true);
     },
@@ -214,8 +219,8 @@
         if (self.adController) {
           self.adController.show()
             .then(function (result) {
-              // result.done === true, если пользователь досмотрел
-              if (result && result.done) {
+              // show() resolves только когда пользователь смотрел до конца
+              if (!result || result.done !== false) {
                 console.log("[AdsGram] Награда получена");
                 resolve(true);
               } else {
